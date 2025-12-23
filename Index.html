@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Admin System</title>
+    <style>
+        :root { --primary: #00468b; --accent: #e74c3c; --bg: #f4f7f6; }
+        body { font-family: 'Arial', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        
+        /* Header Section */
+        header { background: var(--primary); color: white; padding: 30px 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        header h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+        
+        /* News Ticker */
+        .ticker-container { background: var(--accent); color: white; padding: 10px 0; font-weight: bold; overflow: hidden; }
+        
+        /* Main Layout */
+        .container { padding: 15px; max-width: 800px; margin: auto; }
+        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
+        
+        /* Image Style */
+        #school-photo { width: 100%; border-radius: 10px; max-height: 350px; object-fit: cover; display: none; margin-bottom: 15px; }
+        .loader { color: #888; font-style: italic; padding: 20px; }
+        
+        /* Notice Board */
+        .notice-box { border-left: 5px solid var(--primary); background: #eef2f7; padding: 15px; text-align: left; border-radius: 0 10px 10px 0; }
+        .notice-title { font-weight: bold; color: var(--primary); margin-bottom: 10px; display: block; font-size: 18px; }
+        #notice-content { line-height: 1.6; font-size: 16px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="school-name">School Loading...</h1>
+    </header>
+
+    <div class="ticker-container">
+        <marquee id="news-ticker" behavior="scroll" direction="left">Updates ka intezar karein...</marquee>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div id="img-loader" class="loader">Photo load ho rahi hai...</div>
+            <img id="school-photo" src="" alt="School Gallery">
+        </div>
+
+        <div class="card">
+            <div class="notice-box">
+                <span class="notice-title">📢 Latest Notice:</span>
+                <div id="notice-content">Notice board update ho raha hai...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Aapka SheetDB API Link
+        const API_URL = 'https://sheetdb.io/api/v1/tapnoenhhhglj';
+
+        async function updateWebsite() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    // Sabse aakhri row wala data uthana (Latest)
+                    const latestRow = data[data.length - 1];
+
+                    // 1. School Name badlein
+                    document.getElementById('school-name').innerText = latestRow.School_Name || "Hamara School";
+
+                    // 2. Ticker News badlein
+                    document.getElementById('news-ticker').innerText = latestRow.Ticker_News || "Welcome to our website.";
+
+                    // 3. Notice badlein
+                    document.getElementById('notice-content').innerText = latestRow.Notice || "Abhi koi naya notice nahi hai.";
+
+                    // 4. Photo badlein
+                    if (latestRow.Photo_URL && latestRow.Photo_URL.trim() !== "") {
+                        const img = document.getElementById('school-photo');
+                        img.src = latestRow.Photo_URL;
+                        img.onload = () => {
+                            img.style.display = 'block';
+                            document.getElementById('img-loader').style.display = 'none';
+                        };
+                    } else {
+                        document.getElementById('img-loader').innerText = "Koi photo available nahi hai.";
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                document.getElementById('notice-content').innerText = "Data load nahi ho paya. Refresh karein.";
+            }
+        }
+
+        // Page load hote hi function chale
+        updateWebsite();
+    </script>
+</body>
+</html>
